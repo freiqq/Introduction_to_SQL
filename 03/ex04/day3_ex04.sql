@@ -1,50 +1,33 @@
--- -- NEED TO FIX
---
-WITH men_visits AS (SELECT *
-                      FROM person,
-                           person_visits
-                      WHERE person_visits.person_id = person.id
-                        AND person.gender = 'male'),
-     women_visits AS (SELECT *
-                      FROM person,
-                           person_visits
-                      WHERE person_visits.person_id = person.id
-                        AND person.gender = 'female'),
-     visited_pizzerias AS (SELECT pizzeria_id
-                           FROM person_visits,
-                                pizzeria,
-                                person
-                           WHERE pizzeria.id = person_visits.pizzeria_id
-                             AND person.id = person_visits.person_id
-                           GROUP BY pizzeria_id)
+WITH male_visited AS (
+    SELECT p.name
+    FROM (SELECT *
+          FROM person
+          WHERE person.gender = 'male') as man
+             INNER JOIN person_order AS po ON po.person_id = man.id
+             INNER JOIN menu m on m.id = po.menu_id
+             INNER JOIN pizzeria p on p.id = m.pizzeria_id
+    ORDER BY p.name
+),
+     female_visited AS (
+         SELECT p.name
+         FROM (SELECT *
+               FROM person
+               WHERE person.gender = 'female') as man
+                  INNER JOIN person_order AS po ON po.person_id = man.id
+                  INNER JOIN menu m on m.id = po.menu_id
+                  INNER JOIN pizzeria p on p.id = m.pizzeria_id
+         ORDER BY p.name
+     )
 
-
-
-SELECT pizzeria.name AS names
-FROM women_visits, pizzeria
-WHERE women_visits.pizzeria_id = pizzeria.id
-GROUP BY names
-UNION ALL
-SELECT pizzeria.name AS names
-FROM men_visits, pizzeria
-WHERE men_visits.pizzeria_id = pizzeria.id
-GROUP BY names
-ORDER BY names
--- (SELECT pizzeria.name AS pizzeria_name
---      FROM person_order,
---           woman,
---           pizzeria,
---           visited_pizzerias
---      WHERE woman.id = person_order.person_id
---        AND pizzeria.id = visited_pizzerias.pizzeria_id
---      ORDER BY pizzeria_name)
--- -- UNION ALL
--- -- (SELECT pizzeria.name AS pizzeria_name
--- --  FROM person_order,
--- --       man,
--- --       pizzeria,
--- --       visited_pizzerias
--- --  WHERE man.id = person_order.person_id
--- --    AND pizzeria.id = visited_pizzerias.pizzeria_id
--- --  GROUP BY pizzeria.name
--- --  ORDER BY pizzeria_name)
+(SELECT *
+FROM female_visited
+EXCEPT
+SELECT *
+FROM male_visited)
+UNION
+(SELECT *
+FROM male_visited
+EXCEPT
+SELECT *
+FROM female_visited)
+ORDER BY 1;

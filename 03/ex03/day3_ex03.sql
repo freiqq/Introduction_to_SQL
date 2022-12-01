@@ -1,20 +1,37 @@
--- NEED TO FIX
+WITH male_visited AS (
+    SELECT p.name
+    FROM (SELECT *
+          FROM person
+          WHERE person.gender = 'male') as man
+             INNER JOIN person_visits AS pv ON pv.person_id = man.id
+             INNER JOIN pizzeria p on p.id = pv.pizzeria_id
+    ORDER BY p.name
+),
+     female_visited AS (
+         SELECT p.name
+         FROM (SELECT *
+               FROM person
+               WHERE person.gender = 'female') as man
+                  INNER JOIN person_visits AS pv ON pv.person_id = man.id
+                  INNER JOIN pizzeria p on p.id = pv.pizzeria_id
+         ORDER BY p.name
+     )
 
-WITH man AS (SELECT *
-FROM person
-WHERE gender = 'male'),
-    woman AS (SELECT *
-FROM person
-WHERE gender = 'female')
-
-(SELECT pizzeria.name AS pizzeria_name
-FROM person_visits, man, pizzeria
-WHERE man.id = person_visits.id AND pizzeria.id = person_visits.pizzeria_id
-GROUP BY pizzeria.name
-ORDER BY pizzeria_name)
+(SELECT *
+FROM female_visited
+EXCEPT ALL
+SELECT *
+FROM male_visited)
 UNION ALL
-(SELECT pizzeria.name AS pizzeria_name
-FROM person_visits, woman, pizzeria
-WHERE woman.id = person_visits.id AND pizzeria.id = person_visits.pizzeria_id
-GROUP BY pizzeria.name
-ORDER BY pizzeria_name)
+(SELECT *
+FROM male_visited
+EXCEPT ALL
+SELECT *
+FROM female_visited)
+ORDER BY 1;
+
+
+
+
+
+

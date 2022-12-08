@@ -1,0 +1,22 @@
+--01
+BEGIN TRANSACTION;
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+--02
+BEGIN TRANSACTION;
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+--01
+SELECT * FROM pizzeria WHERE  name  = 'Pizza Hut';
+
+--02
+UPDATE pizzeria SET rating = 3.0 WHERE name = 'Pizza Hut';
+COMMIT;
+
+--01
+SELECT * FROM pizzeria WHERE  name  = 'Pizza Hut';
+COMMIT;
+SELECT * FROM pizzeria WHERE  name  = 'Pizza Hut';
+
+--02
+SELECT * FROM pizzeria WHERE  name  = 'Pizza Hut';

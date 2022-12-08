@@ -8,3 +8,5 @@ alter table person_discounts
     add constraint ch_range_discount check (discount BETWEEN 0 AND 100);
 alter table person_discounts
     alter column discount SET default (0);
+
+INSERT INTO person_discounts values(30, 2, 3);
